@@ -1,0 +1,76 @@
+---
+ - name: Apt-get update
+   shell: sudo apt-get update
+   become: yes
+   become_user: root
+
+ - name: create a new user
+   user: name=solr
+           state=present
+           groups="sudo"
+           password={{ password }}
+           comment="Comment"
+
+ - name: Create .ssh directory
+   shell: mkdir /home/solr/.ssh
+   become: yes
+   become_user: solr
+   ignore_errors: yes
+
+ - name: copy private key
+   template:  src=ssh-key dest=/home/solr/.ssh/id_rsa mode=0400
+   become: yes
+   become_user: solr
+
+ - name: copy public key
+   template:  src=ssh-key.pub dest=/home/solr/.ssh/id_rsa.pub mode=0644
+   become: yes
+   become_user: solr
+
+ - name: add solr to sudo user
+   shell: sudo adduser solr sudo && sudo echo "solr ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+   become: yes
+   become_user: root
+
+ 
+ - name: Download solr
+   shell: cd /home/solr &&  wget http://archive.apache.org/dist/lucene/solr/6.4.2/solr-6.4.2.tgz
+   become: yes
+   become_user: solr  
+
+ - name: change ownership of /opt
+   shell: chmod 777 /opt
+   become: yes
+   become_user: root
+
+ - name: Untar solr 
+   shell: cd /opt && tar -xzvf  /home/solr/solr-6.4.2.tgz 
+   become: yes
+   become_user: solr
+
+
+ - name: Change ownership of /opt/virtualenv to celery
+   shell: sudo chown solr:solr -R /opt/solr-6.4.2
+   become: yes
+   become_user: solr
+
+ - name: Creating master Core
+   shell: cd /opt/solr-6.4.2/bin && ./solr start
+   become: yes
+   become_user: solr
+
+ - name: Creating master Core
+   shell: cd /opt/solr-6.4.2/bin && ./solr create -c master -d sample_techproducts_configs -p 8983 -rf 3
+   become: yes
+   become_user: solr
+
+ - name: copy configuration file
+   template:  src=master-solrconfig.xml dest=/opt/solr-6.4.2/server/solr/master/conf/solrconfig.xml mode=0644
+   become: yes
+   become_user: solr
+
+ - name: restart solr
+   shell: cd /opt/solr-6.4.2/bin && ./solr stop -all && ./solr start   
+   become: yes
+   become_user: solr
+ 

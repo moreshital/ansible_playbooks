@@ -1,0 +1,58 @@
+- hosts: tag_mongo
+  remote_user: ubuntu
+  sudo: True
+  tasks:
+    - name: gather priamry host ip
+      shell: mongo --quiet --eval "db.isMaster().ismaster;"
+      register: priamry
+
+    - debug: var=priamry
+
+    - name: copy script to remote
+      copy: src=./curl.sh dest=/tmp/curl.sh
+      # when: priamry.stdout == "true"
+
+    
+    - name: find_master ip
+      shell: bash /tmp/curl.sh
+      when: priamry.stdout == "true"
+      register: master
+    
+    - name: 
+
+    - name: find_master ip
+      shell: bash /tmp/curl.sh
+      when: priamry.stdout == "false"
+      register: secondary
+
+
+
+
+    # - add_host:
+    #     name: "{{ master.stdout }}"
+    #     groups: pri_server
+    #   when: priamry.stdout == "true"
+    
+    # - add_host:
+    #     name: master.stdout
+    #     groups: secondary
+    #   when: priamry.stdout == "false"
+
+    # - uri:
+    #     url: http://metadata/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip
+    #     method: GET
+    #     status_code: 200
+    #     headers:
+    #       Metadata-Flavor: "Google"
+    #   when: priamry.stdout == "true"
+    #   register: master
+
+    - debug: var=master.stdout_lines[0] 
+
+
+- hosts: launched
+  remote_user: ubuntu
+  sudo: True
+  roles:
+    - add-members
+

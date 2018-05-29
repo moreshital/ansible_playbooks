@@ -1,0 +1,130 @@
+---
+- name: check if mongo already installed
+  stat: path=/usr/bin/mongo
+  register: mongo_bin
+
+- name: check if apt lock
+  stat: path=/var/lib/apt/lists/lock
+  register: aptlock
+
+- name: MongoDB | Fetch 10Gen signing key
+  command: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+  when: (mongo_bin.stat.exists == False) and (mongodb_version == '2.6.9')
+
+- debug: msg={{mongodb_version}}
+
+- name: MongoDB | Add 10Gen repository
+  shell:
+    echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+  when: (mongo_bin.stat.exists == False) and (mongodb_version == '2.6.9')
+
+- name: MongoDB | Fetch 10Gen signing key
+  command: sudo rm -rf /var/lib/apt/lists/lock
+  when: aptlock.stat.exists == True
+
+- name: Apt-get update
+  apt:
+    update_cache: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+- name: install mongodb
+  shell: sudo apt-get install -y mongodb-org=2.6.9 mongodb-org-server=2.6.9 mongodb-org-shell=2.6.9 mongodb-org-mongos=2.6.9 mongodb-org-tools=2.6.9
+  when: mongodb_version == '2.6.9'
+
+
+
+- name: MongoDB | Fetch 10Gen signing key
+  command: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+  when: (mongo_bin.stat.exists == False) and (mongodb_version == '2.4.2')
+
+- name: MongoDB | Add 10Gen repository
+  shell:
+    echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+  when: (mongo_bin.stat.exists == False) and (mongodb_version == '2.4.2')
+
+- name: MongoDB | Fetch 10Gen signing key
+  command: sudo rm -rf /var/lib/apt/lists/lock
+  when: aptlock.stat.exists == True
+
+- name: Apt-get update
+  apt:
+    update_cache: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+- name: install mongodb
+  shell: apt-get install mongodb-10gen=2.4.2 
+  when: mongodb_version == '2.4.2'
+
+- name: create datadir
+  shell: sudo mkdir -p /mongodata/mongodb
+
+
+- name: change permission of mongodb datadir
+  shell: sudo chown -R mongodb /mongodata
+
+
+- name: copy configuration file
+  copy: src=mongodb-service dest=/etc/systemd/system/mongodb.service mode=0644
+
+- name: MongoDB - stop server
+  service: name=mongodb state=stopped
+  when: mongo_bin.stat.exists == False
+
+- name: check if ssl folder already exists
+  stat: path=/etc/ssl
+  register: ssl_folder
+
+- name: re-create ssl folder
+  file: path=/etc/ssl state=directory
+  when: (ssl_folder.stat.isdir == False) or ({{ force|default(False) }} == True)
+
+- name: create self-signed SSL cert
+  command: openssl req -newkey rsa:2048 -new -x509 -days 365 -nodes -subj "/C=FR/ST=PACA/L=SophiaAntipolis/O=YourOrga/CN=contact@yourorga.com" -out /etc/ssl/mongodb-cert.crt -keyout /etc/ssl/mongodb-cert.key
+
+- name: compile self-signed SSL cert in PEM file
+  shell: cat /etc/ssl/mongodb-cert.key /etc/ssl/mongodb-cert.crt > /etc/ssl/mongodb.pem
+
+#- name: remove configuration file
+#  file: path=/etc/mongod.conf state=absent
+
+- name: remove mongo conf file
+  shell: rm -rf /etc/mongod.conf
+  ignore_errors: true
+
+# On next startup, a configuration file will be used
+- name: copy configuration file
+  copy: src=mongod dest=/etc/mongod.conf mode=0644
+#  when: mongo_bin.stat.exists == False
+
+- name: OS sysctl variable
+  copy: src=sysctl dest=/etc/sysctl.conf mode=0644
+
+
+- name: OS system variable
+  copy: src=system dest=/etc/systemd/system.conf mode=0644
+
+- name: OS user variable
+  copy: src=user dest=/etc/systemd/user.conf mode=0644
+
+- name: Limit variable
+  copy: src=limit dest=/etc/security/limits.conf mode=0644
+
+- name: common variable
+  copy: src=common dest=/etc/pam.d/common-session mode=0644
+
+- name: common variable
+  copy: src=common-session-non dest=/etc/pam.d/common-session-noninteractive mode=0644
+
+# - name: setup readahead
+#   shell: blockdev --setra 32 /dev/sdb
+- name: restart mongodb
+  shell: systemctl restart  mongodb.service
+
+
+
+
+

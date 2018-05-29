@@ -1,0 +1,11 @@
+---
+- name: create data dir
+  shell: sudo mkdir -p /mongodata 
+
+- name: Mount datadir
+  shell: sudo mount /dev/sdb /mongodata
+  ignore_errors: yes
+  
+
+- name: change owner to mongodb
+  shell: sudo chown -R mongodb:mongodb /mongodata

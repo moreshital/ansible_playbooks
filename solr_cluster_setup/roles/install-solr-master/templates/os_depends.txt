@@ -1,0 +1,13 @@
+libfreetype6-dev
+libmysqlclient-dev
+python-dev
+python-profiler
+clamav
+python-pyclamd
+clamav-daemon
+libssl-dev
+libffi-dev
+libxslt1-dev
+uuid-dev
+memcached
+gem install sass

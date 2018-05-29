@@ -1,0 +1,7 @@
+
+if [ -f /usr/local/bin/virtualenvwrapper_lazy.sh ]
+then
+    export WORKON_HOME=/opt/.virtualenvs
+    export PROJECT_HOME=/opt/projects
+    source /usr/local/bin/virtualenvwrapper_lazy.sh 
+fi

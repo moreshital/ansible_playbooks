@@ -1,0 +1,15 @@
+---
+- name: copy initRS script
+  template: src=initRS.j2 dest=/tmp/initRS.js
+
+- name: initiate replica set from first primary
+  shell: mongo < /tmp/initRS.js
+
+- name: restart monogd
+  shell: service mongodb restart
+
+- name: copy initRS script
+  template: src=initRS.j2 dest=/tmp/initRS_2.js
+
+- name: initiate replica set from first primary
+  shell: mongo < /tmp/initRS_2.js

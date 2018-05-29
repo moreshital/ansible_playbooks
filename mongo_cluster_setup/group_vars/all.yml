@@ -1,0 +1,11 @@
+mongodb_version: '2.6.9'
+db_user_admin_username: mongo
+db_user_admin_password: mongo123
+db_cluster_admin_username: mongo
+db_cluster_admin_password: mongo123
+db_user_name: mongo
+db_user_password: mongo123
+db_name: shine
+primaryhost: mongo-multi-az-wc89
+secondaryhost: mongo-multi-az-574q
+arbiterhost:  mongo-multi-az-arb-20hr

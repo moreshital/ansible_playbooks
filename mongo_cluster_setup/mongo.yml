@@ -1,0 +1,10 @@
+---
+# This playbook deploy a secure mongodb replica set on Ubuntu hosts
+
+# Add members to the replicaset and create user for the database
+- hosts: primary
+  remote_user: ubuntu
+  sudo: True
+  roles:
+  - role: add-members
+  - role: create_users

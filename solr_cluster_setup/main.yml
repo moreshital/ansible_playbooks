@@ -1,0 +1,22 @@
+---
+
+# Install java on each nodes
+- hosts: all
+  remote_user: ubuntu
+  sudo: True
+  roles:
+  - role: install-java8-oracle
+
+# Install solr on master nodes
+- hosts: master
+  remote_user: ubuntu
+  sudo: True
+  roles:
+  - role: install-solr-master
+
+# Install solr on slave nodes
+- hosts: slave
+  remote_user: ubuntu
+  sudo: True
+  roles:
+  - role: install-solr

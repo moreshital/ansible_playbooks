@@ -1,0 +1,7 @@
+use local
+db.system.replset.remove({})
+db.oplog.rs.drop()
+use admin
+db.auth("{{ hostvars[inventory_hostname]['db_cluster_admin_username']  }}", "{{ hostvars[inventory_hostname]['db_cluster_admin_password']  }}");
+rs.add("{{ hostvars[inventory_hostname]['secondaryhost'] }}:27017");
+rs.addArb("{{ hostvars[inventory_hostname]['arbiterhost'] }}:27017");

@@ -1,0 +1,4 @@
+use admin
+db.auth("{{ hostvars[inventory_hostname]['db_cluster_admin_username']  }}", "{{ hostvars[inventory_hostname]['db_cluster_admin_password']  }}");
+rs.initiate({_id: "shine2", members: [{_id: 0, host: "{{ hostvars[inventory_hostname]['primaryhost'] }}:27017"}]});
+rs.status();
