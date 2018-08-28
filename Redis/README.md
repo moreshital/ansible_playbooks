@@ -1,7 +1,5 @@
 # ansible-redis
 
-[![Build Status](https://travis-ci.org/DavidWittman/ansible-redis.svg?branch=master)](https://travis-ci.org/DavidWittman/ansible-redis) [![Ansible Galaxy](https://img.shields.io/badge/galaxy-redis-blue.svg?style=flat)](https://galaxy.ansible.com/detail#/role/730)
-
  - Ansible 2.1+
  - Compatible with most versions of Ubuntu/Debian and RHEL/CentOS 6.x
 
@@ -32,7 +30,7 @@ This role expects to be run as root or as a user with sudo privileges.
 Deploying a single Redis server node is pretty trivial; just add the role to your playbook and go. Here's an example which we'll make a little more exciting by setting the bind address to ip of redis master:
 
 `vim main.yml`
-```
+```yml
 - name: configure the master redis server
   hosts: redis-master
   roles:
@@ -60,10 +58,6 @@ Deploying a single Redis server node is pretty trivial; just add the role to you
 ``` bash
 $ ansible-playbook -i inventory/redis.ini main.yml
 ```
-
-**Note:** You may have noticed above that I just passed a hostname in as the Ansible inventory file. This is an easy way to run Ansible without first having to create an inventory file, you just need to suffix the hostname with a comma so Ansible knows what to do with it.
-
-That's it! You'll now have a Redis server listening on 127.0.0.1 on redis01.example.com. By default, the Redis binaries are installed under /opt/redis, though this can be overridden by setting the `redis_install_dir` variable.
 
 ### Master-Slave replication
 
@@ -101,13 +95,11 @@ And here's the playbook:
     - redis
 ```
 
-In this case, I'm assuming you have DNS records set up for redis-master.example.com, but that's not always the case. You can pretty much go crazy with whatever you need this to be set to. In many cases, I tell Ansible to use the eth1 IP address for the master. Here's a more flexible value for the sake of posterity:
-
-``` yml
-redis_slaveof: "{{ hostvars['redis-master.example.com'].ansible_eth1.ipv4.address }} {{ redis_port }}"
-```
 
 Now you're cooking with gas! Running this playbook should have you ready to go with a Redis master and three slaves.
+```
+ansible-playbook -i inventory/redis.ini main.yml
+```
 
 ### Redis Sentinel
 
@@ -123,13 +115,14 @@ To add a Sentinel node to an existing deployment, assign this same `redis` role 
 
 ``` ini
 [redis-master]
-redis-master.example.com
+13.232.xxx.xxx
 
 [redis-slave]
-redis-slave0[1:3].example.com
+13.127.xxx.xxx
+13.232.xxx.xxx
 
 [redis-sentinel]
-redis-sentinel0[1:3].example.com redis_sentinel=True
+13.232.xxx.xxx redis_sentinel=True
 ```
 
 Above, we've added three more hosts in the **redis-sentinel** group (though this group serves no purpose within the role, it's merely an identifier), and set the `redis_sentinel` variable inline within the inventory file.
@@ -145,7 +138,7 @@ Now, all we need to do is set the `redis_sentinel_monitors` variable to define t
 - name: configure redis slaves
   hosts: redis-slave
   vars:
-    - redis_slaveof: redis-master.example.com 6379
+    - redis_slaveof: 13.232.xxx.xxx 6379
   roles:
     - redis
 
@@ -154,7 +147,7 @@ Now, all we need to do is set the `redis_sentinel_monitors` variable to define t
   vars:
     - redis_sentinel_monitors:
       - name: master01
-        host: redis-master.example.com
+        host: 13.232.xxx.xxx
         port: 6379
   roles:
     - redis
@@ -164,42 +157,6 @@ This will configure the Sentinel nodes to monitor the master we created above us
 
 Along with the variables listed above, Sentinel has a number of its own configurables just as Redis server does. These are prefixed with `redis_sentinel_`, and are enumerated in the **Role Variables** section below.
 
-
-## Advanced Options
-
-### Verifying checksums
-
-Set the `redis_verify_checksum` variable to true to use the checksum verification option for `get_url`. Note that this will only verify checksums when Redis is downloaded from a URL, not when one is provided in a tarball with `redis_tarball`.
-
-When using Ansible 2.x, this role will verify the sha1 checksum of the download against checksums defined in the `redis_checksums` variable in `vars/main.yml`. If your version is not defined in here or you wish to override the checksum with one of your own, simply set the `redis_checksum` variable. As in the example below, you will need to prefix the checksum with the type of hash which you are using.
-
-``` yaml
-- name: install redis on ansible 1.x and verify checksums
-  hosts: all
-  roles:
-    - role: redis
-      redis_version: 3.0.7
-      redis_verify_checksum: true
-      redis_checksum: "sha256:b2a791c4ea3bb7268795c45c6321ea5abcc24457178373e6a6e3be6372737f23"
-```
-
-### Install from local tarball
-
-If the environment your server resides in does not allow downloads (i.e. if the machine is sitting in a dmz) set the variable `redis_tarball` to the path of a locally downloaded Redis tarball to use instead of downloading over HTTP from redis.io.
-
-Do not forget to set the version variable to the same version of the tarball to avoid confusion! For example:
-
-```yml
-vars:
-  redis_version: 2.8.14
-  redis_tarball: /path/to/redis-2.8.14.tar.gz
-```
-
-In this case the source archive is copied to the server over SSH rather than downloaded.
-
-### Building 32 bit binaries
-
-To build 32-bit binaries of Redis (which can be used for [memory optimization](https://redis.io/topics/memory-optimization)), set `redis_make_32bit: true`. This installs the necessary dependencies (x86 glibc) on RHEL/Debian/SuSE and sets the option '32bit' when running make.
 
 ## Role Variables
 
