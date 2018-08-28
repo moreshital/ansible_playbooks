@@ -90,7 +90,7 @@ And here's the playbook:
 - name: configure redis slaves
   hosts: redis-slave
   vars:
-    - redis_slaveof: redis-master.example.com 6379
+    - redis_slaveof: 13.232.xxx.xxx 6379
   roles:
     - redis
 ```
