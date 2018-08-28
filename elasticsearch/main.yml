@@ -1,0 +1,75 @@
+- hosts: elasticsearch_master_nodes
+  remote_user: ubuntu
+  sudo: True
+  roles:
+    - { role: elasticsearch,
+        es_config: {
+            cluster.name: "test-cluster",
+            discovery.zen.ping.unicast.hosts: "node01, node02, node03",
+            network.host: "_eth0_, _local_",
+            discovery.zen.minimum_master_nodes: 2,
+            http.port: 9200,
+            transport.tcp.port: 9300,
+            node.data: false,
+            node.master: true
+             }
+         }
+  vars:
+    es_instance_name: "node1"
+    es_node_name: node01
+    es_config:
+      es_heap_size: "2g"
+      cluster.name: "test-cluster"
+    "node_1": "13.232.138.202 node01"           #for /etc/hosts file entry
+    "node_2": "13.127.184.38 node02"            #for /etc/hosts file entry
+    "node_3": "13.232.205.220 node03"           #for /etc/hosts file entry
+
+
+- hosts: elasticsearch_master_data_nodes
+  roles:
+    - { role: elasticsearch,
+        es_instance_name: "node1",
+        es_config: {
+            cluster.name: "test-cluster",
+            discovery.zen.ping.unicast.hosts: "node01, node02, node03",
+            network.host: "_eth0_, _local_",
+            discovery.zen.minimum_master_nodes: 2,
+            http.port: 9200,
+            transport.tcp.port: 9300,
+            node.data: true,
+            node.master: true
+            }
+            }
+  vars:
+    es_node_name: node02
+    es_instance_name: "node1"
+    es_config:
+      es_heap_size: "2g"
+      cluster.name: "test-cluster"
+    "node_1": "13.232.138.202 node01"             #for /etc/hosts file entry
+    "node_2": "13.127.184.38 node02"              #for /etc/hosts file entry
+    "node_3": "13.232.205.220 node03"             #for /etc/hosts file entry
+
+- hosts: elasticsearch_data_nodes
+  roles:
+    - { role: elasticsearch,
+        es_instance_name: "node1",
+        es_config: {
+            cluster.name: "test-cluster",
+            discovery.zen.ping.unicast.hosts: "node01, node02, node03",
+            network.host: "_eth0_, _local_",
+            discovery.zen.minimum_master_nodes: 2,
+            http.port: 9200,
+            transport.tcp.port: 9300,
+            node.data: true,
+            node.master: false
+            }
+            }
+  vars:
+    es_node_name: node03
+    es_instance_name: "node1"
+    es_config:
+      cluster.name: "test-cluster"
+    "node_1": "13.232.138.202 node01"           #for /etc/hosts file entry
+    "node_2": "13.127.184.38 node02"            #for /etc/hosts file entry
+    "node_3": "13.232.205.220 node03"           #for /etc/hosts file entry
