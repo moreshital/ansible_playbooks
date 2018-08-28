@@ -1,6 +1,4 @@
 # ansible-elasticsearch
-[![Build Status](https://img.shields.io/jenkins/s/https/devops-ci.elastic.co/job/elastic+ansible-elasticsearch+master.svg)](https://devops-ci.elastic.co/job/elastic+ansible-elasticsearch+master/)
-[![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-elastic.elasticsearch-blue.svg)](https://galaxy.ansible.com/elastic/elasticsearch/)
 
 **THIS ROLE IS FOR 6.x, 5.x. FOR 2.x SUPPORT PLEASE USE THE 2.x BRANCH.**
 
@@ -24,10 +22,10 @@ Create your Ansible playbook with your own tasks, and include the role elasticse
 ansible-galaxy install elastic.elasticsearch
 ```
 
-Then create your playbook yaml adding the role elasticsearch. By default, the user is only required to specify a unique es_instance_name per role application.  This should be unique per node. 
+Then create your playbook yaml adding the role elasticsearch. By default, the user is only required to specify a unique es_instance_name per role application.  This should be unique per node.
 The application of the elasticsearch role results in the installation of a node on a host.
 
-The simplest configuration therefore consists of: 
+The simplest configuration therefore consists of:
 
 ```yaml
 - name: Simple Example
@@ -136,7 +134,7 @@ Whilst the role installs Elasticsearch with the default configuration parameters
 * ```es_config['discovery.zen.ping.unicast.hosts']``` - the unicast discovery list, in the comma separated format ```"<host>:<port>,<host>:<port>"``` (typically the clusters dedicated masters)
 * ```es_config['network.host']``` - sets both network.bind_host and network.publish_host to the same host value. The network.bind_host setting allows to control the host different network components will bind on.  
 
-The network.publish_host setting allows to control the host the node will publish itself within the cluster so other nodes will be able to connect to it. 
+The network.publish_host setting allows to control the host the node will publish itself within the cluster so other nodes will be able to connect to it.
 
 See https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html for further details on default binding behaviour and available options.
 The role makes no attempt to enforce the setting of these are requires users to specify them appropriately.  IT is recommended master nodes are listed and thus deployed first where possible.
@@ -182,7 +180,7 @@ If the node is deployed to bind on either a different host or port, these must b
 
 ### Multi Node Server Installations
 
-The application of the elasticsearch role results in the installation of a node on a host. Specifying the role multiple times for a host therefore results in the installation of multiple nodes for the host. 
+The application of the elasticsearch role results in the installation of a node on a host. Specifying the role multiple times for a host therefore results in the installation of multiple nodes for the host.
 
 An example of a two server deployment is shown below.  The first server holds the master and is thus declared first.  Whilst not mandatory, this is recommended in any multi node cluster configuration.  The second server hosts two data nodes.
 
@@ -215,7 +213,7 @@ An example of a two server deployment is shown below.  The first server holds th
     - role: elastic.elasticsearch
   vars:
     es_instance_name: "node1"
-    es_data_dirs: 
+    es_data_dirs:
       - "/opt/elasticsearch"
     es_config:
       discovery.zen.ping.unicast.hosts: "elastic02:9300"
@@ -232,7 +230,7 @@ An example of a two server deployment is shown below.  The first server holds th
     es_api_port: 9200
     es_plugins:
       - plugin: ingest-geoip
-    
+
 - hosts: data_nodes
   roles:
     - role: elastic.elasticsearch
@@ -308,8 +306,8 @@ es_users:
         - power_user
         - user
 ```
-            
-            
+
+
 * ```es_roles``` - Elasticsearch roles can be declared here as yml. Two sub keys 'native' and 'file' determine how the role is created i.e. either through a file or http(native) call.  Beneath each key list the roles with appropriate permissions, using the file based format described [here] (https://www.elastic.co/guide/en/x-pack/current/file-realm.html) e.g.
 
 ```yaml
@@ -352,12 +350,12 @@ es_roles:
             - delete
             - create_index
 ```                
-                
+
 * ```es_xpack_license``` - X-Pack license. The license is a json blob. Set the variable directly (possibly protected by Ansible vault) or from a file in the Ansible project on the control machine via a lookup:
 
 ```yaml
 es_xpack_license: "{{ lookup('file', playbook_dir + '/files/' + es_cluster_name + '/license.json') }}"
-``` 
+```
 
 X-Pack configuration parameters can be added to the elasticsearch.yml file using the normal `es_config` parameter.
 
@@ -389,7 +387,7 @@ In addition to es_config, the following parameters allow the customization of th
 * ```es_plugins``` an array of plugin definitions e.g.:
   ```yaml
     es_plugins:
-      - plugin: ingest-geoip 
+      - plugin: ingest-geoip
   ```
 * ```es_path_repo``` Sets the whitelist for allowing local back-up repositories
 * ```es_action_auto_create_index ``` Sets the value for auto index creation, use the syntax below for specifying indexes (else true/false):
@@ -403,7 +401,7 @@ In addition to es_config, the following parameters allow the customization of th
 * ```es_debian_startup_timeout``` how long Debian-family SysV init scripts wait for the service to start, in seconds. Defaults to 10 seconds.
 
 Earlier examples illustrate the installation of plugins using `es_plugins`.  For officially supported plugins no version or source delimiter is required. The plugin script will determine the appropriate plugin version based on the target Elasticsearch version.  For community based plugins include the full url.  This approach should NOT be used for the X-Pack plugin.  See X-Pack below for details here.
- 
+
 If installing Monitoring or Alerting, ensure the license plugin is also specified.  Security configuration currently has limited support, but more support is planned for later versions.
 
 To configure X-pack to send mail, the following configuration can be added to the role. When require_auth is true, you will also need to provide the user and password. If not these can be removed:
@@ -424,7 +422,7 @@ To configure X-pack to send mail, the following configuration can be added to th
 * ```es_user_id``` - default is undefined.
 * ```es_group_id``` - default is undefined.
 
-Both ```es_user_id``` and ```es_group_id``` must be set for the user and group ids to be set. 
+Both ```es_user_id``` and ```es_group_id``` must be set for the user and group ids to be set.
 
 By default, each node on a host will be installed to use unique pid, plugin, work, data and log directories.  These directories are created, using the instance and host name, beneath default locations ]
 controlled by the following parameters:
@@ -450,7 +448,7 @@ To define proxy only for a particular plugin during its installation:
 
 ```yaml
   es_plugins:
-    - plugin: ingest-geoip 
+    - plugin: ingest-geoip
       proxy_host: proxy.example.com
       proxy_port: 8080
 ```
@@ -462,7 +460,7 @@ To define proxy only for a particular plugin during its installation:
 * The role assumes the user/group exists on the server.  The elasticsearch packages create the default elasticsearch user.  If this needs to be changed, ensure the user exists.
 * The playbook relies on the inventory_name of each host to ensure its directories are unique
 * Changing an instance_name for a role application will result in the installation of a new component.  The previous component will remain.
-* KitchenCI has been used for testing.  This is used to confirm images reach the correct state after a play is first applied.  We currently test the latest version of 6.x and 5.x on all supported platforms. 
+* KitchenCI has been used for testing.  This is used to confirm images reach the correct state after a play is first applied.  We currently test the latest version of 6.x and 5.x on all supported platforms.
 * The role aims to be idempotent.  Running the role multiple times, with no changes, should result in no state change on the server.  If the configuration is changed, these will be applied and Elasticsearch restarted where required.
 * Systemd is used for Ubuntu versions >= 15, Debian >=8, Centos >=7.  All other versions use init for service scripts.
 * In order to run x-pack tests a license file with security enabled is required. A trial license is appropriate. Set the environment variable `ES_XPACK_LICENSE_FILE` to the full path of the license file prior to running tests.
