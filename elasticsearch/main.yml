@@ -20,9 +20,9 @@
     es_config:
       es_heap_size: "2g"
       cluster.name: "test-cluster"
-    "node_1": "13.232.138.202 node01"           #for /etc/hosts file entry
-    "node_2": "13.127.184.38 node02"            #for /etc/hosts file entry
-    "node_3": "13.232.205.220 node03"           #for /etc/hosts file entry
+    "node_1": "13.232.xxx.xxx node01"           #for /etc/hosts file entry
+    "node_2": "13.127.xxx.xxx node02"            #for /etc/hosts file entry
+    "node_3": "13.232.xxx.xxx node03"           #for /etc/hosts file entry
 
 
 - hosts: elasticsearch_master_data_nodes
@@ -46,9 +46,9 @@
     es_config:
       es_heap_size: "2g"
       cluster.name: "test-cluster"
-    "node_1": "13.232.138.202 node01"             #for /etc/hosts file entry
-    "node_2": "13.127.184.38 node02"              #for /etc/hosts file entry
-    "node_3": "13.232.205.220 node03"             #for /etc/hosts file entry
+    "node_1": "13.232.xxx.xxx node01"             #for /etc/hosts file entry
+    "node_2": "13.127.xxx.xxx node02"              #for /etc/hosts file entry
+    "node_3": "13.232.xxx.xxx node03"             #for /etc/hosts file entry
 
 - hosts: elasticsearch_data_nodes
   roles:
@@ -70,6 +70,6 @@
     es_instance_name: "node1"
     es_config:
       cluster.name: "test-cluster"
-    "node_1": "13.232.138.202 node01"           #for /etc/hosts file entry
-    "node_2": "13.127.184.38 node02"            #for /etc/hosts file entry
-    "node_3": "13.232.205.220 node03"           #for /etc/hosts file entry
+    "node_1": "13.232.xxx.xxx node01"           #for /etc/hosts file entry
+    "node_2": "13.127.xxx.xxx node02"            #for /etc/hosts file entry
+    "node_3": "13.232.xxx.xxx node03"           #for /etc/hosts file entry

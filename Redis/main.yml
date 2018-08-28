@@ -15,7 +15,7 @@
   vars:
     - redis_sentinel_monitors:
       - name: master01
-        host: 13.232.138.202
+        host: 13.232.xxx.xxx
         port: 6379
   roles:
     - redis
